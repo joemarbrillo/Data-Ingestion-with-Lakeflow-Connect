@@ -13,3 +13,56 @@ In this lecture, you learned the fundamentals of data engineering in Databricks 
 3. Three ingestion methods are available: Batch (processes all records), Incremental Batch (processes only new records), and Streaming (continuous, near real-time ingestion).
 4. Delta Lake is an open-source protocol that stores data as Parquet files with transaction logs, enabling ACID transactions, time travel, DML support, and schema enforcement.
 5. The Medallion Architecture (Bronze, Silver, Gold) progressively improves data quality as it moves through each layer.
+
+## Data Ingestion from Cloud Storage
+
+> **CREATE TABLE AS**
+```sql
+CREATE TABLE new_table AS
+    SELECT *
+    FROM read_files(
+    <path_to_file(s)>,
+    format => '<file_type>',
+    <other_format_specific_options>
+    );
+```
+
+> **COPY INTO**
+```sql
+CREATE TABLE new_table;
+        
+COPY INTO new_table
+FROM '<dir_path>'
+FILEFORMAT = <file_type>
+FORMAT_OPTIONS (<options>)
+COPY_OPTIONS (<options>)
+```
+
+> **AUTOLOADER**
+```python
+(spark
+  .readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .option("cloudFiles.schemaLocation", "<checkpoint_path>")
+    .load("/Volumes/catalog/schema/files")
+  .writeStream
+    .option("checkpointLocation", "<checkpoint_path>")
+    .trigger(processingTime="5 seconds")
+    .toTable("catalog.database.table")
+)
+```
+
+With SDP
+```sql
+CREATE OR REFRESH STREAMING TABLE
+  catalog.schema.table
+SCHEDULE EVERY 1 HOUR
+AS
+SELECT *
+FROM STREAM read_files(
+  '<dir_path>',
+  format => '<file_type>'
+)
+```
+
