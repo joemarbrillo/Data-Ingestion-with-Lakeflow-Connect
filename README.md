@@ -208,3 +208,46 @@ spark.sql(f"""
 display(spark.sql("SELECT * FROM bronze_users"))
 ```
 
+## Ingesting Enterprise Data Overview
+
+From official Databricks Academy documents.
+
+![](images/data-ingestion-overview.png)
+![](images/managed-connectors-data-sources.png)
+![](images/database-ingestion-architecture.png)
+
+## Additional Features and Ingesting into Existing UC tables
+
+> Ingesting Data with Databricks Marketplace
+
+![](images/databricks_marketplace.png)
+
+> Delta Sharing with Databricks Marketplace
+
+> Updates, Inserts, and Deletes on Delta Tables with MERGE INTO
+
+![](images/merge_into_walkthrough.png)
+
+Syntax:
+```sql
+-- Declare Target and Source Table
+MERGE INTO target_table target
+USING source_table source
+-- Specify the condition for merging
+ON target.id = source.id
+-- First WHEN clause for merge
+WHEN MATCHED AND source.status = 'update' THEN
+  UPDATE SET
+    target.email = source.email,
+    target.status = source.status
+-- Second WHEN clause for merge
+WHEN MATCHED AND source.status = 'delete' THEN
+  DELETE
+-- WHEN NOT MATCHED clause for merge
+WHEN NOT MATCHED THEN
+  INSERT (id, first_name, email, sign_up_date
+  status)
+```
+
+## Certificate
+Completion [`certificate`](cert/Data%20Ingestion%20with%20Lakeflow%20Connect%20-%20Databricks.pdf) from Databricks Academy.
